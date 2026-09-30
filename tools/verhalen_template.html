@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fotojaar – verhalen</title>
+<style>
+  :root { --bg:#f4efe6; --paper:#fff; --ink:#2b2420; --muted:#7a6d62; --line:#ddd2c2; --accent:#8a5a2b; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1b1815; --paper:#25211d; --ink:#efe7db; --muted:#a89a8b; --line:#3a332c; --accent:#d39a5c; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui, sans-serif; }
+  header { position:sticky; top:0; z-index:2; background:var(--paper); border-bottom:1px solid var(--line); padding:10px 16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:1.1rem; margin:0 12px 0 0; }
+  button, select { font:inherit; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:inherit; cursor:pointer; }
+  button.main { background:var(--accent); color:#fff; border:0; }
+  .count { color:var(--muted); margin-left:auto; }
+  main { max-width:1000px; margin:0 auto; padding:16px; }
+  .help { color:var(--muted); margin:0 0 12px; }
+  h2 { font-size:1rem; margin:22px 0 8px; }
+  h2 small { color:var(--muted); font-weight:400; }
+  .row { display:grid; grid-template-columns:130px 1fr; gap:14px; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; }
+  .row img { width:130px; height:130px; object-fit:contain; background:#111; border-radius:6px; }
+  .meta { color:var(--muted); font-size:12px; margin-bottom:6px; }
+  .open { font-size:12px; padding:2px 8px; margin-left:8px; }
+  .meta b { color:var(--ink); font-size:14px; }
+  .ops { font-size:12px; background:var(--bg); border-left:3px solid var(--accent); padding:4px 8px; margin:0 0 6px; }
+  .ops button { font-size:12px; padding:2px 8px; margin-left:6px; }
+  textarea { width:100%; min-height:62px; font:inherit; padding:8px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:inherit; resize:vertical; }
+  .tags { display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-top:6px; }
+  .tags-label { color:var(--muted); font-size:12px; margin-right:2px; }
+  .tag { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); text-decoration:none; }
+  .tag.link { color:var(--accent); border-color:var(--accent); }
+  a.tag.link::after { content:" ↗"; }
+  .tag.dup { text-decoration:line-through; opacity:.6; }
+  .dupnote { font-size:11px; color:var(--muted); }
+  .past { opacity:.6; }
+  .changed textarea { border-color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Fotojaar – verhalen</h1>
+  <select id="filter">
+    <option value="future">Deze en komende weken</option>
+    <option value="all">Alle weken</option>
+    <option value="empty">Zonder verhaal</option>
+  </select>
+  <button class="main" id="dl">Bewaar verhalen.json</button>
+  <span class="count" id="count"></span>
+</header>
+<main>
+  <p class="help">Het verhaal verschijnt pas nadat de speler geraden heeft, onder de foto. Een of twee zinnen volstaan:
+    wie staat erop, wat is er bijzonder aan het karton, de fotograaf of het opschrift. Je mag het jaartal noemen.
+    Links: plak een adres (<code>https://…</code>) of schrijf <code>[linktekst](https://…)</code>.
+    Met <em>📂 Toon in …</em> open je de foto in Verkenner/Finder (enkel als je de pagina opent via <code>python build.py verhalen</code>). Klik daarna op <em>Bewaar verhalen.json</em> (komt in Downloads) en voer <code>python build.py build</code> en <code>python build.py publish</code> uit.
+    Je werk wordt ook tussentijds in deze browser bewaard.</p>
+  <div id="list"></div>
+</main>
+<script>
+const D = /*DATA*/;
+const TOKEN = '__TOKEN__';
+const SERVED = location.protocol.startsWith('http') && TOKEN !== '__' + 'TOKEN__';
+async function openInFm(r, btn) {
+  try {
+    const res = await fetch('/open', { method: 'POST', headers: { 'X-Token': TOKEN, 'Content-Type': 'application/json' }, body: JSON.stringify({ p: r.p }) });
+    btn.textContent = res.ok ? '✓ geopend' : '✗ niet gevonden';
+  } catch { btn.textContent = '✗ geen verbinding'; }
+  setTimeout(() => { btn.textContent = '📂 Toon in ' + D.fm; }, 2500);
+}
+const DRAFT = 'fotojaar-verhalen-concept';
+let draft = {};
+try { draft = JSON.parse(localStorage.getItem(DRAFT)) || {}; } catch {}
+const val = (r) => (r.p in draft ? draft[r.p] : r.v);
+const fmt = (s) => new Date(s + 'T00:00:00').toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' });
+
+function render() {
+  const f = document.getElementById('filter').value;
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  let lastWk = 0;
+  for (const r of D.rows) {
+    const past = new Date(r.d) < new Date(D.today) && (new Date(D.today) - new Date(r.d)) >= 7 * 864e5;
+    if (f === 'future' && past) continue;
+    if (f === 'empty' && val(r).trim()) continue;
+    if (r.wk !== lastWk) {
+      const h = document.createElement('h2');
+      h.textContent = `Week ${r.wk} `;
+      const sm = document.createElement('small');
+      sm.textContent = `vanaf maandag ${fmt(r.d)}${past ? ' – al gespeeld' : ''}`;
+      h.appendChild(sm);
+      list.appendChild(h);
+      lastWk = r.wk;
+    }
+    const row = document.createElement('div');
+    row.className = 'row' + (past ? ' past' : '') + (val(r) !== r.v ? ' changed' : '');
+    const img = document.createElement('img'); img.src = r.t; img.loading = 'lazy';
+    const right = document.createElement('div');
+    const meta = document.createElement('div'); meta.className = 'meta';
+    const y = document.createElement('b'); y.textContent = r.y[0] === r.y[1] ? r.y[0] : r.y.join('–');
+    meta.append(y, document.createTextNode(`  ${r.c ? r.c + ' · ' : ''}${r.p}`));
+    if (SERVED) {
+      const ob = document.createElement('button'); ob.className = 'open'; ob.textContent = '📂 Toon in ' + D.fm;
+      ob.title = 'Toont dit bestand in ' + D.fm;
+      ob.onclick = () => openInFm(r, ob);
+      meta.appendChild(ob);
+    }
+    right.appendChild(meta);
+    const ta = document.createElement('textarea');
+    ta.placeholder = 'Verhaal achter de foto…';
+    ta.value = val(r);
+    ta.oninput = () => {
+      draft[r.p] = ta.value;
+      try { localStorage.setItem(DRAFT, JSON.stringify(draft)); } catch {}
+      row.classList.toggle('changed', ta.value !== r.v);
+      updateCount();
+    };
+    if (r.o && !val(r).trim()) {
+      const ops = document.createElement('p'); ops.className = 'ops';
+      ops.textContent = 'Leeg gelaten? Dan toont de site de FotoLineage-beschrijving: ' + r.o;
+      right.appendChild(ops);
+    }
+    right.appendChild(ta);
+    const tags = document.createElement('div'); tags.className = 'tags';
+    const drawTags = () => {
+      tags.textContent = '';
+      if (!r.k.length) return;
+      const lab = document.createElement('span'); lab.className = 'tags-label'; lab.textContent = 'Keywords op de site:';
+      tags.appendChild(lab);
+      for (const [label, url] of r.k) {
+        const dup = url && ta.value.includes(url);
+        const t = document.createElement(url && !dup ? 'a' : 'span');
+        t.className = 'tag' + (url ? ' link' : '') + (dup ? ' dup' : '');
+        t.textContent = label;
+        if (url && !dup) { t.href = url; t.target = '_blank'; t.rel = 'noopener'; }
+        if (dup) t.title = 'Deze link staat al in je verhaal; het label wordt niet getoond.';
+        tags.appendChild(t);
+        if (dup) { const n = document.createElement('span'); n.className = 'dupnote'; n.textContent = '(zit al in verhaal)'; tags.appendChild(n); }
+      }
+    };
+    drawTags();
+    ta.addEventListener('input', drawTags);
+    right.appendChild(tags);
+    row.append(img, right);
+    list.appendChild(row);
+  }
+  updateCount();
+}
+function updateCount() {
+  const n = D.rows.filter((r) => val(r).trim()).length;
+  document.getElementById('count').textContent = `${n} van ${D.rows.length} foto's hebben een verhaal`;
+}
+document.getElementById('filter').onchange = render;
+document.getElementById('dl').onclick = () => {
+  const out = {};
+  for (const r of D.rows) if (val(r).trim()) out[r.p] = val(r).trim();
+  const blob = new Blob([JSON.stringify({ verhalen: out }, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'verhalen.json'; a.click();
+  for (const r of D.rows) r.v = val(r);   // bewaarde tekst wordt de nieuwe basis
+  try { localStorage.removeItem(DRAFT); } catch {}
+  draft = {};
+  render();
+};
+render();
+</script>
+</body>
+</html>

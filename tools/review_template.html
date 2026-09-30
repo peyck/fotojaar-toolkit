@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fotojaar – controle</title>
+<style>
+  :root { --bg:#f4efe6; --paper:#fff; --ink:#2b2420; --muted:#7a6d62; --ok:#3d8b4f; --no:#b8433a; --line:#ddd2c2; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1b1815; --paper:#25211d; --ink:#efe7db; --muted:#a89a8b; --line:#3a332c; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.4 system-ui, sans-serif; }
+  header { position:sticky; top:0; z-index:2; background:var(--paper); border-bottom:1px solid var(--line); padding:10px 16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:1.1rem; margin:0 12px 0 0; }
+  button, select, input { font:inherit; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:inherit; }
+  button.main { background:var(--ok); color:#fff; border:0; }
+  .count { color:var(--muted); margin-left:auto; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:10px; padding:16px; }
+  .tile { background:var(--paper); border-radius:10px; overflow:hidden; border:3px solid var(--ok); cursor:pointer; position:relative; }
+  .tile.off { border-color:var(--no); opacity:.55; }
+  .tile.isnew::before { content:"nieuw"; position:absolute; top:6px; right:6px; z-index:1; background:#c9a227; color:#000; font-size:11px; font-weight:700; padding:1px 7px; border-radius:6px; }
+  .tile.changed::after { content:"handmatig"; position:absolute; top:6px; left:6px; background:#000a; color:#fff; font-size:11px; padding:1px 6px; border-radius:6px; }
+  .tile img { width:100%; height:170px; object-fit:contain; background:#111; display:block; }
+  .tile .m { padding:6px 8px; }
+  .open { font-size:11px; padding:2px 7px; margin-top:4px; }
+  .tile .y { font-weight:700; }
+  .tile .w, .tile .p { color:var(--muted); font-size:12px; word-break:break-all; }
+  .help { padding:0 16px; color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Fotojaar – controle</h1>
+  <select id="filter">
+    <option value="new">Nieuw (nog niet gepubliceerd)</option>
+    <option value="all">Alle</option>
+    <option value="in">Opgenomen</option>
+    <option value="out">Uitgesloten</option>
+    <option value="auto">Automatisch uitgesloten (heuristiek)</option>
+    <option value="changed">Handmatig gewijzigd</option>
+  </select>
+  <input id="q" placeholder="Zoek pad…">
+  <button class="main" id="dl">Bewaar overrides.json</button>
+  <span class="count" id="count"></span>
+</header>
+<p class="help">Klik op een foto om ze op te nemen (groen) of uit te sluiten (rood). Klik daarna op <em>Bewaar overrides.json</em> (komt in Downloads; <code>build</code> neemt het automatisch over) en draai <code>python build.py build</code> en <code>python build.py publish</code>.</p>
+<div class="grid" id="grid"></div>
+<script>
+const D = /*DATA*/;
+const TOKEN = '__TOKEN__';
+const SERVED = location.protocol.startsWith('http') && TOKEN !== '__' + 'TOKEN__';
+async function openInFm(r, btn) {
+  try {
+    const res = await fetch('/open', { method: 'POST', headers: { 'X-Token': TOKEN, 'Content-Type': 'application/json' }, body: JSON.stringify({ p: r.p }) });
+    btn.textContent = res.ok ? '✓ geopend' : '✗ niet gevonden';
+  } catch { btn.textContent = '✗ geen verbinding'; }
+  setTimeout(() => { btn.textContent = '📂 ' + D.fm; }, 2500);
+}
+const exc = new Set(D.ov.exclude || []), inc = new Set(D.ov.include || []);
+const on = (r) => (r.v === 'include' ? !exc.has(r.p) : inc.has(r.p));
+const changed = (r) => exc.has(r.p) || inc.has(r.p);
+function toggle(r) {
+  const now = on(r);
+  if (r.v === 'include') now ? exc.add(r.p) : exc.delete(r.p);
+  else now ? inc.delete(r.p) : inc.add(r.p);
+}
+function render() {
+  const f = document.getElementById('filter').value, q = document.getElementById('q').value.toLowerCase();
+  const g = document.getElementById('grid');
+  g.innerHTML = '';
+  let shown = 0;
+  for (const r of D.rows) {
+    const o = on(r);
+    if (f === 'new' && !r.n) continue;
+    if (f === 'in' && !o) continue;
+    if (f === 'out' && o) continue;
+    if (f === 'auto' && !(r.v === 'exclude' && !r.why.startsWith('FotoLineage'))) continue;
+    if (f === 'changed' && !changed(r)) continue;
+    if (q && !r.p.toLowerCase().includes(q)) continue;
+    shown++;
+    const t = document.createElement('div');
+    t.className = 'tile' + (o ? '' : ' off') + (changed(r) ? ' changed' : '') + (r.n ? ' isnew' : '');
+    const img = document.createElement('img'); img.loading = 'lazy'; img.src = r.t;
+    const m = document.createElement('div'); m.className = 'm';
+    const y = document.createElement('div'); y.className = 'y'; y.textContent = r.y[0] === r.y[1] ? r.y[0] : r.y.join('–');
+    const w = document.createElement('div'); w.className = 'w'; w.textContent = r.why;
+    const p = document.createElement('div'); p.className = 'p'; p.textContent = r.p;
+    m.append(y, w, p);
+    if (SERVED) {
+      const ob = document.createElement('button'); ob.className = 'open'; ob.textContent = '📂 ' + D.fm;
+      ob.title = 'Toont dit bestand in ' + D.fm;
+      ob.onclick = (e) => { e.stopPropagation(); openInFm(r, ob); };
+      m.appendChild(ob);
+    }
+    t.append(img, m);
+    t.onclick = () => { toggle(r); render(); };
+    g.appendChild(t);
+  }
+  const total = D.rows.filter(on).length;
+  document.getElementById('count').textContent = `${shown} getoond · ${total} opgenomen van ${D.rows.length}`;
+}
+document.getElementById('filter').onchange = render;
+document.getElementById('q').oninput = render;
+document.getElementById('dl').onclick = () => {
+  const blob = new Blob([JSON.stringify({ exclude: [...exc].sort(), include: [...inc].sort(), jaar: D.ov.jaar || {} }, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'overrides.json'; a.click();
+};
+const nNew = D.rows.filter((r) => r.n).length;
+document.querySelector('#filter option[value=new]').textContent = `Nieuw (nog niet gepubliceerd): ${nNew}`;
+if (nNew) document.getElementById('filter').value = 'new';
+render();
+</script>
+</body>
+</html>

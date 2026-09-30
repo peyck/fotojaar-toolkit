@@ -1,0 +1,16 @@
+{
+  "name": "{{og_title_json}}",
+  "short_name": "{{title_json}}",
+  "description": "{{manifest_description_json}}",
+  "lang": "{{lang}}",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4efe6",
+  "theme_color": "#8a5a2b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

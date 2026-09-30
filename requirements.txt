@@ -1,0 +1,3 @@
+Pillow>=10.1
+# optioneel: voor een fotolijst in .xlsx
+# openpyxl

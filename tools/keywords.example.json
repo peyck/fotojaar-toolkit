@@ -1,0 +1,7 @@
+{
+    "_uitleg": "Kopieer naar keywords.json (naast config.json). Keywords uit de metadata verschijnen als labels onder het verhaal. 'verberg': nooit tonen (hoofdletterongevoelig). 'links': keyword -> [label, url]. Jaartallen, getallen, codes zoals 2012WH1, 'collectie ...' en mapnamen worden altijd verborgen.",
+    "verberg": ["scans", "small"],
+    "links": {
+        "voorbeeld": ["Meer over dit voorbeeld", "https://voorbeeld.be/"]
+    }
+}

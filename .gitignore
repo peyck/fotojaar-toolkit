@@ -1,0 +1,18 @@
+# Gegevens van je eigen instantie (privé houden)
+tools/config.json
+tools/schedule.json
+tools/overrides.json
+tools/verhalen.json
+tools/keywords.json
+tools/photos.csv
+tools/cache/
+tools/review.html
+tools/verhalen.html
+
+# Gegenereerd
+dist/
+dist.zip
+demo/
+site/
+__pycache__/
+*.pyc

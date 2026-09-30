@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{t.meta_description}}">
+<link rel="canonical" href="{{site_url}}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{title}}">
+<meta property="og:title" content="{{t.og_title}}">
+<meta property="og:description" content="{{t.og_description}}">
+<meta property="og:url" content="{{site_url}}">
+<meta property="og:image" content="{{site_url}}og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="{{og_locale}}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="{{title}}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#fbf8f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#25211d" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='5' width='26' height='22' rx='2' fill='%238a5a2b'/%3E%3Crect x='6' y='8' width='20' height='16' fill='%23f3ead8'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%238a5a2b'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css?v=9">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="./" aria-label="{{t.brand_aria}}">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span class="brand-name">{{title}}</span>
+  </a>
+  <nav class="topnav">
+    <button class="iconbtn" data-open="help" title="{{t.help_title}}" aria-label="{{t.help_aria}}">?</button>
+    <button class="iconbtn" data-open="archive" title="{{t.archive_title}}" aria-label="{{t.archive_aria}}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    </button>
+    <button class="iconbtn" data-open="stats" title="{{t.stats_title}}" aria-label="{{t.stats_title}}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-7"/></svg>
+    </button>
+  </nav>
+</header>
+
+<main id="app">
+  <section class="weekline">
+    <div>
+      <h1 id="weekTitle">{{t.week_placeholder}}</h1>
+      <p id="weekRange" class="muted"></p>
+    </div>
+    <ol class="pips" id="pips" aria-label="{{t.progress_aria}}"></ol>
+  </section>
+
+  <!-- Speelscherm -->
+  <section id="play" class="card" hidden>
+    <figure class="photo" id="photoWrap">
+      <div class="photo-loading" id="photoLoading">{{t.photo_loading}}</div>
+      <img id="photo" alt="{{t.photo_alt}}" decoding="async">
+      <button class="zoombtn" id="zoomBtn" aria-label="{{t.zoom_aria}}" title="{{t.zoom_title}}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5M8 10.5h5M10.5 8v5"/></svg>
+      </button>
+    </figure>
+
+    <div class="guess" id="guessPanel">
+      <label class="guess-label" for="yearRange">{{t.which_year}}</label>
+      <div class="yearbox">
+        <button class="step" data-step="-1" aria-label="{{t.year_earlier}}">−</button>
+        <output id="yearOut" class="yearout" for="yearRange">1900</output>
+        <button class="step" data-step="1" aria-label="{{t.year_later}}">+</button>
+      </div>
+      <input type="range" id="yearRange" min="1850" max="2000" step="1" value="1900">
+      <div class="scale" id="scale"></div>
+      <button class="primary" id="guessBtn">{{t.confirm}}</button>
+    </div>
+
+    <div class="reveal" id="revealPanel" hidden>
+      <div class="reveal-head">
+        <div>
+          <p class="muted small">{{t.right_year}}</p>
+          <p class="bigyear" id="actualYear">—</p>
+        </div>
+        <div class="points">
+          <p class="muted small">{{t.points_label}}</p>
+          <p class="bigpts" id="pointsOut">0</p>
+        </div>
+      </div>
+      <div class="track" id="track">
+        <div class="track-line"></div>
+        <div class="track-gap" id="trackGap"></div>
+        <div class="mark mark-guess" id="markGuess"><span></span></div>
+        <div class="mark mark-actual" id="markActual"><span></span></div>
+      </div>
+      <p class="verdict" id="verdict"></p>
+      <p class="caption muted" id="caption"></p>
+      <div class="story" id="story" hidden>
+        <p class="story-label">{{t.behind_photo}}</p>
+        <p class="story-text" id="storyText"></p>
+        <div class="tags" id="storyTags"></div>
+      </div>
+      <button class="primary" id="nextBtn">{{t.next_photo}}</button>
+    </div>
+  </section>
+
+  <!-- Eindscherm -->
+  <section id="done" class="card" hidden>
+    <p class="muted small center">{{t.your_score}}</p>
+    <p class="total"><span id="totalOut">0</span><span class="of"> / <span id="maxOut">5000</span></span></p>
+    <p class="center" id="rating"></p>
+    <p class="streak" id="streak" hidden></p>
+    <ul class="results" id="results"></ul>
+    <div class="row center">
+      <button class="primary" id="shareBtn">{{t.share_result}}</button>
+    </div>
+    <!--?LEARN--><a class="learn" href="{{learn_url}}" target="_blank" rel="noopener" data-track="gids/eindscherm">
+      <span class="learn-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>
+      </span>
+      <span class="learn-text">
+        <b>{{t.learn_title}}</b>
+        <span>{{t.learn_text}}</span>
+      </span>
+      <span class="learn-arrow" aria-hidden="true">→</span>
+    </a><!--/LEARN-->
+    <div class="comeback" id="comeback">
+      <p class="comeback-title" id="nextWeek"></p>
+      <div class="comeback-btns" id="remindBtns">
+        <button id="calGoogle" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+          {{t.remind_google}}
+        </button>
+        <a id="calIcs" href="fotojaar.ics">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+          {{t.remind_other}}
+        </a>
+        <button id="installBtn" type="button" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3"/></svg>
+          {{t.install_home}}
+        </button>
+      </div>
+      <p class="muted small center" id="iosHint" hidden>{{t.ios_hint}}</p>
+    </div>
+  </section>
+
+  <section id="empty" class="card center" hidden>
+    <p id="emptyMsg">{{t.no_photos}}</p>
+  </section>
+</main>
+
+<footer class="foot muted small">
+  {{credit}}<span id="countInfo"></span><br>
+  {{t.footer_scores}}<!--?ANALYTICS-->{{t.footer_analytics}}<!--/ANALYTICS-->
+</footer>
+
+<!-- Dialogen -->
+<dialog id="help">
+  <h2>{{t.help_title}}</h2>
+  <p>{{t.help_intro}}</p>
+  <ul>
+    <li>{{t.help_li1}}</li>
+    <li>{{t.help_li2}}</li>
+    <li>{{t.help_li3}}</li>
+    <li>{{t.help_li4}}</li>
+  </ul>
+  <p class="legend">{{t.legend}}</p>
+  <!--?LEARN--><p><a href="{{learn_url}}" target="_blank" rel="noopener" data-track="gids/uitleg"><b>{{t.learn_title}}</b> {{t.learn_help}}</a></p><!--/LEARN-->
+  <form method="dialog"><button class="primary">{{t.understood}}</button></form>
+</dialog>
+
+<dialog id="archive">
+  <h2>{{t.archive_title}}</h2>
+  <ul class="archive" id="archiveList"></ul>
+  <form method="dialog"><button>{{t.close}}</button></form>
+</dialog>
+
+<dialog id="stats">
+  <h2>{{t.stats_title}}</h2>
+  <div class="statgrid" id="statGrid"></div>
+  <h3>{{t.dist_title}}</h3>
+  <div class="dist" id="dist"></div>
+  <form method="dialog"><button>{{t.close}}</button></form>
+</dialog>
+
+<dialog id="shareDlg" class="sharedlg">
+  <h2>{{t.share_title}}</h2>
+  <img id="shareImg" class="shareimg" alt="{{t.share_img_alt}}">
+  <button class="primary wide" id="shNative" hidden>{{t.share_native}}</button>
+  <div class="sharebtns">
+    <button id="shWhatsapp"><span class="dot" style="background:#25d366"></span>WhatsApp</button>
+    <button id="shFacebook"><span class="dot" style="background:#1877f2"></span>Facebook</button>
+    <button id="shEmail"><span class="dot" style="background:#8a5a2b"></span>E-mail</button>
+    <button id="shDownload"><span class="dot" style="background:#555"></span>{{t.share_save}}</button>
+    <button id="shCopyImg" hidden><span class="dot" style="background:#555"></span>{{t.share_copy_img}}</button>
+    <button id="shCopyText"><span class="dot" style="background:#555"></span>{{t.share_copy_text}}</button>
+  </div>
+  <p class="muted small" id="shareHint">{{t.share_hint}}</p>
+  <form method="dialog"><button>{{t.close}}</button></form>
+</dialog>
+
+<div class="lightbox" id="lightbox" hidden>
+  <img id="lightImg" alt="">
+  <button class="lightclose" aria-label="{{t.close}}">×</button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="lang.js"></script>
+<script src="app.js?v=11"></script>
+<!--?ANALYTICS--><!-- Anonieme bezoekersstatistiek (geen cookies): https://{{goatcounter}}.goatcounter.com -->
+<script data-goatcounter="https://{{goatcounter}}.goatcounter.com/count" async src="count.js?v=1"></script><!--/ANALYTICS-->
+</body>
+</html>

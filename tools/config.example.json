@@ -1,0 +1,33 @@
+{
+  "_uitleg": "Kopieer dit bestand naar config.json en pas het aan. Alleen 'collection' is verplicht; de rest is optioneel.",
+
+  "collection": "C:/Foto's/MijnCollectie",
+  "site_url": "https://naam.github.io/fotojaar/",
+  "site_dir": "../dist",
+  "publish": "zip",
+  "site": {
+    "title": "Fotojaar",
+    "collection_name": "Collectie van Heemkring X",
+    "credit_html": "Foto's uit de collectie van <a href=\"https://voorbeeld.be/\">Heemkring X</a>",
+    "learn": {"url": "https://voorbeeld.be/oude-fotos-dateren/", "name": "onze website"},
+    "goatcounter": "",
+    "og_locale": "nl_BE"
+  },
+  "per_week": 5,
+
+  "year_sources": ["csv", "metadata", "path"],
+  "csv": "photos.csv",
+  "path_year_from": ["filename", "folder"],
+
+  "exiftool_paths": ["exiftool"],
+
+  "detect_backs": true,
+  "skip_dirs": [],
+  "skip_name_regex": "",
+  "skip_ref_regex": "",
+  "front_dated_dirs": [],
+  "og_photos": [],
+
+  "obf_key": "kies-een-eigen-sleutel",
+  "salt": "kies-een-eigen-zout"
+}
