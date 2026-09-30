@@ -20,6 +20,11 @@ Example: https://peyck.github.io/fotojaar/
 
 ## Quick start
 
+**Windows, no terminal:** unzip the download (see step 1) and double-click `Fotojaar.cmd`. The first time it installs what is
+needed (Python via `winget` if missing, plus Pillow and openpyxl) and shows a menu: demo, set up, check, choose photos,
+stories, build the website and publish. The commands below are for those who prefer a terminal (and for macOS and Linux).
+Note that the menu itself is in Dutch.
+
 1. Download the code: [ZIP file](https://github.com/peyck/fotojaar-toolkit/archive/refs/heads/main.zip) (or on the GitHub page: *Code → Download ZIP*) and unzip it.
 2. Open a terminal in the unzipped folder and install the requirements (Pillow):
 

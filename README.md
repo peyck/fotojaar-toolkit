@@ -17,6 +17,11 @@ Voorbeeld: https://peyck.github.io/fotojaar/
 
 ## Snelstart
 
+**Windows, zonder terminal:** pak de ZIP uit (zie stap 1) en dubbelklik op `Fotojaar.cmd`. Dat installeert bij de eerste keer
+wat nodig is (Python via `winget` als het ontbreekt, plus Pillow en openpyxl) en toont een menu: demo, instellen, controleren,
+foto's kiezen, verhalen, website maken en publiceren. Meer heb je niet nodig; de commando's hieronder zijn voor wie liever
+een terminal gebruikt (en voor macOS en Linux).
+
 1. Download de code: [ZIP-bestand](https://github.com/peyck/fotojaar-toolkit/archive/refs/heads/main.zip) (of op de GitHub-pagina: *Code → Download ZIP*) en pak het uit.
 2. Open een terminal in de uitgepakte map en installeer de vereisten (Pillow):
 
