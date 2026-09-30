@@ -149,7 +149,7 @@ overgenomen als ze nieuwer zijn.
 
 1. Jaartal uit (in volgorde) een keyword (`XMP-dc:Subject`, `IPTC:Keywords`, `lr:HierarchicalSubject`),
    `XMP-fotolineage:CircaDate`, of DateCreated t.e.m. 2000 – zie [docs/metadata.md](docs/metadata.md).
-2. Achterzijdes weg:
+2. Achterzijdes weg (alleen als `detect_backs` aan staat in `config.json`; `setup` vraagt ernaar):
    - FotoLineage-db (`photos.side` = `back`/`extra`) of `XMP-fotolineage:PairPartner` Role=back;
    - ongekoppelde opeenvolgende scans (`Foto_01_225` / `Foto_01_226`) met hetzelfde jaartal:
      de scan met het minste beeld (licht, weinig contrast) is de achterzijde;

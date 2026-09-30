@@ -121,7 +121,7 @@ OG_PHOTOS = CFG.get("og_photos", [])         # foto's voor het linkvoorbeeld; no
 YEAR_SOURCES = CFG.get("year_sources", ["csv", "metadata", "path"])
 CSV_FILE = DATA / CFG.get("csv", "photos.csv")          # .csv of .xlsx
 PATH_YEAR_FROM = CFG.get("path_year_from", ["filename", "folder"])
-DETECT_BACKS = CFG.get("detect_backs", True)  # achterzijdes (kartons, blanco papier) automatisch herkennen
+DETECT_BACKS = CFG.get("detect_backs", False)  # achterzijdes (kartons, blanco papier) automatisch herkennen; niets te raden zonder scans van achterzijdes
 IMAGE_EXTS = {".jpg", ".jpeg", ".tif", ".tiff"}
 OBF_KEY = CFG.get("obf_key", "fotojaar")
 SALT = CFG.get("salt", "fotojaar")
@@ -714,10 +714,11 @@ def cmd_setup():
     code = ""
     while code not in ("nl", "en"):
         code = ask("Taal van de website / website language (nl of en)", "nl").lower()
+    backs = ask("Bevat je collectie ook scans van de achterzijde van foto's (karton, blanco papier)? (j/n)", "n").lower() in ("j", "ja", "y", "yes")
     title = ask("Titel van de website", "Fotojaar")
     name = ask("Naam van de collectie (voor 'Foto's uit …', mag leeg)")
     url = ask("Adres waar de website komt te staan (mag leeg, bv. https://naam.github.io/fotojaar/)")
-    cfg = {"collection": coll.replace("\\", "/"), "lang": code, "year_sources": sources, "site_url": url,
+    cfg = {"collection": coll.replace("\\", "/"), "lang": code, "detect_backs": backs, "year_sources": sources, "site_url": url,
            "publish": "zip", "site": {"title": title, "collection_name": name},
            "obf_key": secrets.token_hex(8), "salt": secrets.token_hex(8)}
     CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -1473,7 +1474,7 @@ def cmd_publish(message: str = "Foto's bijgewerkt"):
         print(f"gekopieerd naar {target}")
     else:
         out = shutil.make_archive(str(SITE), "zip", root_dir=SITE)
-        print(f"{out}\nUpload de inhoud van dit zipbestand naar je website (zie README, 'Online zetten').")
+        print(f"{out}\nUpload de inhoud van dit zipbestand naar je website (zie README, 'Website genereren en online zetten').")
     mark_seen()
 
 
@@ -1490,9 +1491,12 @@ def mark_seen():
 
 
 if __name__ == "__main__":
+    for stream in (sys.stdout, sys.stderr):        # geen crash op tekens die de console niet kent
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(errors="replace")
     cmd = sys.argv[1] if len(sys.argv) > 1 else "help"
     if cmd not in ("help", "setup", "check", "demo") and COLLECTION is None:
-        sys.exit(f"Geen collectiemap ingesteld: zet 'collection' in {CONFIG_PATH.name}")
+        sys.exit(f"Nog niet ingesteld: voer eerst 'python build.py setup' uit (of zet 'collection' in {CONFIG_PATH}).")
     flags = {a for a in sys.argv[2:] if a.startswith("--")}
     args = [a for a in sys.argv[2:] if not a.startswith("--")]
     arg = Path(args[0]) if args else None
