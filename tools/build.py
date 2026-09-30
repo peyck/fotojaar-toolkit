@@ -1341,6 +1341,9 @@ def reveal_in_file_manager(path: Path):
         subprocess.Popen(["xdg-open", str(path.parent)])
 
 
+MAX_POST = 1_000_000                # grootste toegelaten verzoek naar het servertje (bytes)
+
+
 def make_server(page: Path, port: int = 8787):
     """Maak (zonder te starten) de server die de pagina alleen op 127.0.0.1 serveert, met /open om een foto in het bestandsbeheer te tonen.
     Veiligheid: alleen localhost, geheime token per sessie, controle op Host-header en op het pad
@@ -1378,10 +1381,19 @@ def make_server(page: Path, port: int = 8787):
             self.send(404)
 
         def do_POST(self):
+            # De body altijd (begrensd) lezen voor we antwoorden: sluit de server met ongelezen data,
+            # dan breekt Windows de verbinding af en krijgt de browser geen 403 maar een netwerkfout.
+            try:
+                length = int(self.headers.get("Content-Length") or 0)
+            except ValueError:
+                length = -1
+            if not 0 <= length <= MAX_POST:
+                return self.send(413 if length > MAX_POST else 400)
+            raw = self.rfile.read(length)
             if not self.host_ok() or self.path != "/open" or self.headers.get("X-Token") != token:
                 return self.send(403)
             try:
-                rp = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))))["p"]
+                rp = json.loads(raw)["p"]
                 f = (COLLECTION / rp).resolve()
                 if coll not in f.parents or not f.is_file():
                     return self.send(404, b"niet gevonden")

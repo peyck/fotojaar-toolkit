@@ -123,6 +123,20 @@ class Server(unittest.TestCase):
     def test_open_only_on_open_path(self):
         self.assertEqual(self.req("POST", "/andere", b"{}", {"X-Token": self.token})[0], 403)
 
+    def test_large_body_without_token_still_gets_403(self):
+        # Zonder de body te lezen breekt Windows de verbinding af (WinError 10053) in plaats van 403 te sturen.
+        for _ in range(30):
+            self.assertEqual(self.req("POST", "/open", b"x" * 400000, {"Content-Type": "application/json"})[0], 403)
+
+    def test_oversized_and_invalid_length(self):
+        self.assertEqual(self.req("POST", "/open", b"{}", {"Content-Length": str(build.MAX_POST + 1)})[0], 413)
+        c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
+        c.putrequest("POST", "/open")
+        c.putheader("Content-Length", "abc")
+        c.endheaders()
+        self.assertEqual(c.getresponse().status, 400)
+        c.close()
+
 
 if __name__ == "__main__":
     unittest.main()
