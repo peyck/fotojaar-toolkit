@@ -15,15 +15,22 @@ Example: https://peyck.github.io/fotojaar/
 ## What you need
 
 - [Python](https://www.python.org/downloads/) 3.9 or newer
-- `pip install -r requirements.txt` (Pillow)
 - photos (JPEG or TIFF) in a folder, with the year somewhere: in the folder or file name, in a spreadsheet (Excel/CSV),
   or in the photos' metadata (for that you also need [exiftool](https://exiftool.org))
 
 ## Quick start
 
-Download the code (on GitHub: *Code → Download ZIP*), unzip it and open a terminal in the `tools` folder.
+1. Download the code: [ZIP file](https://github.com/peyck/fotojaar-toolkit/archive/refs/heads/main.zip) (or on the GitHub page: *Code → Download ZIP*) and unzip it.
+2. Open a terminal in the unzipped folder and install the requirements (Pillow):
 
 ```
+pip install -r requirements.txt
+```
+
+3. Go to the `tools` folder and run:
+
+```
+cd tools
 python build.py demo       # optional: a small sample site in ../demo, to see what you get
 python build.py setup      # asks a few questions and writes config.json
 python build.py check      # checks your installation and how many photos have a year

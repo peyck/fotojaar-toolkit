@@ -12,15 +12,22 @@ Voorbeeld: https://peyck.github.io/fotojaar/
 ## Wat heb je nodig?
 
 - [Python](https://www.python.org/downloads/) 3.9 of nieuwer
-- `pip install -r requirements.txt` (Pillow)
 - foto's (JPEG of TIFF) in een map, met het jaartal ergens: in de map- of bestandsnaam, in een lijst (Excel/CSV) of in de
   metadata van de foto's (dan heb je ook [exiftool](https://exiftool.org) nodig)
 
 ## Snelstart
 
-Download de code (op GitHub: *Code → Download ZIP*), pak uit en open een terminal in de map `tools`.
+1. Download de code: [ZIP-bestand](https://github.com/peyck/fotojaar-toolkit/archive/refs/heads/main.zip) (of op de GitHub-pagina: *Code → Download ZIP*) en pak het uit.
+2. Open een terminal in de uitgepakte map en installeer de vereisten (Pillow):
 
 ```
+pip install -r requirements.txt
+```
+
+3. Ga naar de map `tools` en voer uit:
+
+```
+cd tools
 python build.py demo       # optioneel: een kleine voorbeeldsite in ../demo, om te zien wat je krijgt
 python build.py setup      # stelt een paar vragen en schrijft config.json
 python build.py check      # controleert je installatie en hoeveel foto's een jaartal hebben
