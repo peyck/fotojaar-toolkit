@@ -1341,8 +1341,8 @@ def reveal_in_file_manager(path: Path):
         subprocess.Popen(["xdg-open", str(path.parent)])
 
 
-def serve_page(page: Path, port: int = 8787):
-    """Serveer de pagina alleen op 127.0.0.1, met /open om een foto in het bestandsbeheer te tonen.
+def make_server(page: Path, port: int = 8787):
+    """Maak (zonder te starten) de server die de pagina alleen op 127.0.0.1 serveert, met /open om een foto in het bestandsbeheer te tonen.
     Veiligheid: alleen localhost, geheime token per sessie, controle op Host-header en op het pad
     (moet een bestaand bestand binnen de collectie zijn)."""
     token = secrets.token_urlsafe(16)
@@ -1394,6 +1394,12 @@ def serve_page(page: Path, port: int = 8787):
         srv = http.server.ThreadingHTTPServer(("127.0.0.1", port), Handler)
     except OSError:                       # poort bezet: een vrije poort nemen
         srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    return srv, token
+
+
+def serve_page(page: Path, port: int = 8787):
+    """Start de server en open de pagina in de browser tot Ctrl+C."""
+    srv, _ = make_server(page, port)
     url = f"http://127.0.0.1:{srv.server_address[1]}/{page.name}"
     print(f"Pagina staat op {url}")
     bezig, klaar = (("nakijkt", "Klik eerst op 'Bewaar overrides.json'.") if page.name == "review.html"
