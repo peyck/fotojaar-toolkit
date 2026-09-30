@@ -12,7 +12,7 @@ Voorbeeld: https://peyck.github.io/fotojaar/
 ## Wat heb je nodig?
 
 - [Python](https://www.python.org/downloads/) 3.9 of nieuwer
-- foto's (JPEG of TIFF) in een map, met het jaartal ergens: in de map- of bestandsnaam, in een lijst (Excel/CSV) of in de
+- foto's (JPEG, TIFF, PNG of WebP; andere extensies via `image_exts`) in een map, met het jaartal ergens: in de map- of bestandsnaam, in een lijst (Excel/CSV) of in de
   metadata van de foto's (dan heb je ook [exiftool](https://exiftool.org) nodig)
 
 ## Snelstart
@@ -129,7 +129,7 @@ om het opnieuw te laten maken.
 Alle instellingen die bij een collectie horen staan in `tools/config.json`; `config.example.json` toont een
 minimale versie. Enkel `collection` is verplicht. Sleutels: `collection`, `fotolineage_db` (optioneel, relatief
 t.o.v. de collectie), `fotolineage_config`, `exiftool_paths`, `site_url`, `per_week`, `max_side`, `jpeg_quality`,
-`site_dir`, `render_site`, `publish`, `publish_folder`, `site`, `lang`, `texts`, `year_sources`, `csv`, `path_year_from`, `max_range`, `circa`, `date_max_year`, `skip_dirs`, `skip_name_regex`, `skip_ref_regex`, `front_dated_dirs`,
+`site_dir`, `render_site`, `publish`, `publish_folder`, `site`, `lang`, `texts`, `year_sources`, `csv`, `path_year_from`, `image_exts`, `max_range`, `circa`, `date_max_year`, `skip_dirs`, `skip_name_regex`, `skip_ref_regex`, `front_dated_dirs`,
 `og_photos`, `obf_key`, `salt`. **Wijzig `obf_key` en `salt` niet in een lopende instantie**: alle afbeeldingsnamen
 veranderen dan.
 

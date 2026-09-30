@@ -21,6 +21,7 @@
 
   "exiftool_paths": ["exiftool"],
 
+  "image_exts": ["jpg", "jpeg", "tif", "tiff", "png", "webp"],
   "detect_backs": false,
   "skip_dirs": [],
   "skip_name_regex": "",

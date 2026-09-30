@@ -15,7 +15,7 @@ Example: https://peyck.github.io/fotojaar/
 ## What you need
 
 - [Python](https://www.python.org/downloads/) 3.9 or newer
-- photos (JPEG or TIFF) in a folder, with the year somewhere: in the folder or file name, in a spreadsheet (Excel/CSV),
+- photos (JPEG, TIFF, PNG or WebP; other extensions via `image_exts`) in a folder, with the year somewhere: in the folder or file name, in a spreadsheet (Excel/CSV),
   or in the photos' metadata (for that you also need [exiftool](https://exiftool.org))
 
 ## Quick start
@@ -120,7 +120,7 @@ photos that are **not** in the game, because they are public in the link preview
 ## Settings (`config.json`)
 
 Only `collection` is required; `config.example.json` shows all keys: `collection`, `lang`, `texts`, `site_dir`,
-`render_site`, `publish`, `publish_folder`, `site`, `site_url`, `year_sources`, `csv`, `path_year_from`, `detect_backs`,
+`render_site`, `publish`, `publish_folder`, `site`, `site_url`, `year_sources`, `csv`, `path_year_from`, `image_exts`, `detect_backs`,
 `per_week`, `max_side`, `jpeg_quality`, `max_range`, `skip_dirs`, `skip_name_regex`, `skip_ref_regex`, `front_dated_dirs`,
 `og_photos`, `exiftool_paths`, `obf_key`, `salt`. **Do not change `obf_key` and `salt` in a running instance**: all image
 names would change.

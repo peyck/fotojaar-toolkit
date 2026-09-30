@@ -122,7 +122,7 @@ YEAR_SOURCES = CFG.get("year_sources", ["csv", "metadata", "path"])
 CSV_FILE = DATA / CFG.get("csv", "photos.csv")          # .csv of .xlsx
 PATH_YEAR_FROM = CFG.get("path_year_from", ["filename", "folder"])
 DETECT_BACKS = CFG.get("detect_backs", False)  # achterzijdes (kartons, blanco papier) automatisch herkennen; niets te raden zonder scans van achterzijdes
-IMAGE_EXTS = {".jpg", ".jpeg", ".tif", ".tiff"}
+IMAGE_EXTS = {"." + e.lower().lstrip(".") for e in CFG.get("image_exts", ["jpg", "jpeg", "tif", "tiff", "png", "webp"])}
 OBF_KEY = CFG.get("obf_key", "fotojaar")
 SALT = CFG.get("salt", "fotojaar")
 
@@ -167,7 +167,7 @@ def exiftool_args(targets: list[str]) -> list[str]:
         args += ["-config", str(FL_CONFIG)]
     return args + [
         "-r", "-fast", "-json", "-G1", "-charset", "filename=utf8",
-        "-ext", "jpg", "-ext", "jpeg", "-ext", "tif", "-ext", "tiff",
+        *[a for e in sorted(IMAGE_EXTS) for a in ("-ext", e.lstrip("."))],
         "-XMP-dc:Subject", "-IPTC:Keywords", "-XMP-lr:HierarchicalSubject",
         "-XMP-fotolineage:all", "-XMP-photoshop:City", "-XMP-dc:Creator",
         "-XMP-photoshop:DateCreated", "-IPTC:DateCreated", "-ExifIFD:DateTimeOriginal",
