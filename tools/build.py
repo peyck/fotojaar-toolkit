@@ -356,7 +356,7 @@ def num_key(p: str):
 
 CSV_ALIASES = {
     "pad": "path", "path": "path", "bestand": "path", "file": "path", "filename": "path",
-    "jaar": "year", "year": "year", "jaar_tot": "year_to", "year_to": "year_to", "tot": "year_to",
+    "jaar": "year", "year": "year",
     "titel": "title", "title": "title",
     "beschrijving": "description", "description": "description",
     "fotograaf": "photographer", "photographer": "photographer",
@@ -364,7 +364,7 @@ CSV_ALIASES = {
     "verhaal": "story", "story": "story",
     "keywords": "keywords", "trefwoorden": "keywords",
 }
-CSV_HEADER = ["pad", "jaar", "jaar_tot", "titel", "beschrijving", "fotograaf", "plaats", "verhaal", "keywords"]
+CSV_HEADER = ["pad", "jaar", "titel", "beschrijving", "fotograaf", "plaats", "verhaal", "keywords"]
 _csv_cache: dict | None = None
 
 
@@ -430,8 +430,6 @@ def parse_year_cell(text: str) -> list[int]:
 
 def csv_years(row: dict) -> list[int]:
     ys = parse_year_cell(row.get("year", "")) if row else []
-    if ys and row.get("year_to", "").isdigit() and ys[0] == ys[1]:
-        ys = sorted((ys[0], int(row["year_to"])))
     return ys if ys and all(1600 <= y <= 2029 for y in ys) else []
 
 

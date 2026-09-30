@@ -45,9 +45,6 @@ class CsvYears(unittest.TestCase):
         self.assertEqual(build.parse_year_cell("1910~"), [1908, 1912])
         self.assertEqual(build.parse_year_cell("onbekend"), [])
 
-    def test_year_to_column(self):
-        self.assertEqual(build.csv_years({"year": "1950", "year_to": "1953"}), [1950, 1953])
-
     def test_out_of_range(self):
         self.assertEqual(build.csv_years({"year": "3000"}), [])
         self.assertEqual(build.csv_years({}), [])

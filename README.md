@@ -57,9 +57,24 @@ Standaard: `["csv", "metadata", "path"]`. Deze instantie gebruikt enkel `["metad
 
 | Bron | Wat | Nodig |
 |---|---|---|
-| `csv` | lijst `tools/photos.csv` (of `.xlsx`, met `"csv": "lijst.xlsx"`) met kolommen `pad;jaar;jaar_tot;titel;beschrijving;fotograaf;plaats;verhaal;keywords`. `pad` is relatief t.o.v. de collectie (of enkel de bestandsnaam). `jaar` is `1952`, `1950-1955` of `1910~` (±2 jaar). Keywords scheid je met een komma of puntkomma. | niets (`.xlsx`: `pip install openpyxl`) |
+| `csv` | lijst `tools/photos.csv` (of `.xlsx`, met `"csv": "lijst.xlsx"`) met kolommen `pad;jaar;titel;beschrijving;fotograaf;plaats;verhaal;keywords`. `pad` is relatief t.o.v. de collectie (of enkel de bestandsnaam). `jaar` is `1952`, `1950-1955` of `1910~` (±2 jaar). Zie *Kolommen van de lijst* hieronder. | niets (`.xlsx` leest `openpyxl`, dat met `requirements.txt` is geïnstalleerd) |
 | `metadata` | keyword-jaartal, FotoLineage-`CircaDate`, `DateCreated`, in exiftool-velden van je foto's; uitleg in [docs/metadata.md](docs/metadata.md) | exiftool en `python build.py scan` |
 | `path` | jaartal in de bestandsnaam (`Kermis_1968.jpg`) of een mapnaam (`1952 Processie`, `1950-1955`); `path_year_from` bepaalt of bestandsnaam, map of beide telt | niets |
+
+**Kolommen van de lijst.** De eerste rij bevat de kolomnamen (hoofdletters maken niet uit); alleen `pad` en `jaar` zijn nodig.
+Het scheidingsteken (`;`, `,` of tab) wordt automatisch herkend.
+
+| Kolom | Betekenis |
+|---|---|
+| `pad` | het bestand, relatief t.o.v. de collectiemap (`1952 Processie/foto1.jpg`) of enkel de bestandsnaam. Staat een pad twee keer in de lijst, dan wint de laatste rij |
+| `jaar` | het jaartal: `1952`, een **bereik** `1950-1955` (elke gok van 1950 t.e.m. 1955 is dan juist; een bereik groter dan `max_range`, standaard 10 jaar, wordt overgeslagen) of `1910~` (±2 jaar) |
+| `titel` | wordt als beschrijving getoond als `beschrijving` leeg is |
+| `beschrijving` | tekst onder de foto na het raden |
+| `fotograaf`, `plaats` | onderschrift onder de foto (`fotograaf · plaats`) |
+| `verhaal` | verhaal onder de foto; een verhaal in `verhalen.json` gaat voor |
+| `keywords` | labels onder de foto, gescheiden door een komma of puntkomma |
+
+De kolomnamen mogen ook Engels zijn: `path`, `year`, `title`, `description`, `photographer`, `place`, `story`, `keywords`.
 
 Zonder exiftool: `python build.py init-csv` maakt `photos.csv` met alle foto's (jaartal vooraf ingevuld waar het uit
 pad of bestandsnaam volgt); vul de rest aan en voer `python build.py analyze` uit (`scan` is dan niet nodig).

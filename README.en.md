@@ -61,9 +61,24 @@ Set `year_sources` in `config.json`. The sources are tried in the given order (t
 
 | Source | What | Needs |
 |---|---|---|
-| `csv` | a list `tools/photos.csv` (or `.xlsx`, with `"csv": "list.xlsx"`) with columns `pad;jaar;jaar_tot;titel;beschrijving;fotograaf;plaats;verhaal;keywords` (path, year, year to, title, description, photographer, place, story, keywords). `pad` is relative to the collection (or just the file name). `jaar` is `1952`, `1950-1955` or `1910~` (±2 years). Separate keywords with a comma or semicolon. | nothing (`.xlsx`: `pip install openpyxl`) |
+| `csv` | a list `tools/photos.csv` (or `.xlsx`, with `"csv": "list.xlsx"`) with columns `pad;jaar;titel;beschrijving;fotograaf;plaats;verhaal;keywords` (path, year, title, description, photographer, place, story, keywords). `pad` is relative to the collection (or just the file name). `jaar` is `1952`, `1950-1955` or `1910~` (±2 years). See *Columns of the list* below. | nothing (`.xlsx` is read by `openpyxl`, installed with `requirements.txt`) |
 | `metadata` | keyword year, FotoLineage `CircaDate`, `DateCreated` in the photos' exiftool fields (details in [docs/metadata.md](docs/metadata.md), in Dutch) | exiftool and `python build.py scan` |
 | `path` | year in the file name (`Fair_1968.jpg`) or a folder name (`1952 Procession`, `1950-1955`); `path_year_from` decides whether file name, folder or both count | nothing |
+
+**Columns of the list.** The first row holds the column names (case does not matter); only `pad` and `jaar` are required.
+The delimiter (`;`, `,` or tab) is detected automatically. The Dutch names are the primary ones; the English names in the last line work too.
+
+| Column | Meaning |
+|---|---|
+| `pad` (path) | the file, relative to the collection folder (`1952 Procession/photo1.jpg`) or just the file name. If a path appears twice, the last row wins |
+| `jaar` (year) | the year: `1952`, a **range** `1950-1955` (every guess from 1950 through 1955 is then correct; a range wider than `max_range`, default 10 years, is skipped) or `1910~` (±2 years) |
+| `titel` (title) | shown as the description if `beschrijving` is empty |
+| `beschrijving` (description) | text under the photo after guessing |
+| `fotograaf`, `plaats` (photographer, place) | caption under the photo (`photographer · place`) |
+| `verhaal` (story) | story under the photo; a story in `verhalen.json` takes precedence |
+| `keywords` | labels under the photo, separated by a comma or semicolon |
+
+English column names also work: `path`, `year`, `title`, `description`, `photographer`, `place`, `story`, `keywords`.
 
 Without exiftool: `python build.py init-csv` creates `photos.csv` with all photos (year prefilled where it follows from
 the path or file name); fill in the rest and run `python build.py analyze` (no `scan` needed).
