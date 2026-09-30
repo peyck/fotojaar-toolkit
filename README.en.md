@@ -27,6 +27,18 @@ Example: https://peyck.github.io/fotojaar/
 pip install -r requirements.txt
 ```
 
+   *macOS and Linux:* type `python3` and `pip3` if `python` and `pip` do not exist. On Ubuntu/Debian `pip` refuses to install into
+   the system Python and the `venv` module is often missing. Use a virtual environment instead:
+
+   ```
+   sudo apt install python3-venv
+   python3 -m venv .venv
+   . .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+   exiftool (only for the `metadata` source): `brew install exiftool` (macOS) or `sudo apt install libimage-exiftool-perl` (Ubuntu/Debian).
+
 3. Go to the `tools` folder and run:
 
 ```
